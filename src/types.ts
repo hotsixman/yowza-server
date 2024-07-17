@@ -26,7 +26,7 @@ export interface YowzaServerListenOption {
 
 export type YowzaServerHandler = (event: YowzaServerEvent) => Promise<YowzaServerEvent | YowzaServerResponse | YowzaServerError>;
 
-export type YowzaServerResponseOption = YowzaServerTextResponseOption | YowzaServerBufferResponseOption;
+export type YowzaServerResponseOption = YowzaServerTextResponseOption | YowzaServerBufferResponseOption | YowzaServerFileReesponseOption;
 export interface YowzaServerTextResponseOption {
     type: 'html' | 'json' | 'plain' | 'raw';
     content: string | Stream;
@@ -34,4 +34,8 @@ export interface YowzaServerTextResponseOption {
 export interface YowzaServerBufferResponseOption {
     type: 'buffer';
     content: Buffer;
+}
+export interface YowzaServerFileReesponseOption {
+    type: 'file';
+    content: Buffer | Stream;
 }

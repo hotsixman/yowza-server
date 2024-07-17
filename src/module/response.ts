@@ -8,20 +8,20 @@ export class YowzaServerResponse {
     content: YowzaServerResponseOption['content'];
 
     constructor(option?: YowzaServerResponseOption) {
-        if(option){
+        if (option) {
             this.type = option.type;
             this.content = option.content;
         }
-        else{
+        else {
             this.type = 'empty';
             this.content = '';
         }
     }
 
     send(res: Http2ServerResponse, event: YowzaServerEvent) {
-        if(res.setDefaultEncoding) res.setDefaultEncoding('utf-8');
+        if (res.setDefaultEncoding) res.setDefaultEncoding('utf-8');
         res.statusCode = 200;
-        
+
         //header
         Array.from(event.response.header.entries()).forEach(([key, value]) => {
             res.setHeader(key, value);
@@ -78,6 +78,9 @@ export class YowzaServerResponse {
                 }
 
                 break;
+            }
+            case ('file'): {
+                
             }
         }
     }
