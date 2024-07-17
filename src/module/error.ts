@@ -27,7 +27,7 @@ export class YowzaServerError {
     }
 
     send(res: Http2ServerResponse, event: YowzaServerEvent) {
-        res.setDefaultEncoding('utf-8');
+        if(res.setDefaultEncoding) res.setDefaultEncoding('utf-8');
         res.statusCode = this.statusCode;
 
         switch (this.type) {

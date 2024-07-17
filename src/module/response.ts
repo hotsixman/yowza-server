@@ -19,7 +19,7 @@ export class YowzaServerResponse {
     }
 
     send(res: Http2ServerResponse, event: YowzaServerEvent) {
-        res.setDefaultEncoding('utf-8');
+        if(res.setDefaultEncoding) res.setDefaultEncoding('utf-8');
         res.statusCode = 200;
         
         //header
