@@ -1,0 +1,33 @@
+{
+  "name": "@yowza/server",
+  "version": "0.1.0",
+  "description": "A simple web server for nodejs",
+  "main": "./cjs/index.js",
+  "module": "./esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./cjs/index.js"
+    },
+    "./types": "./src/types.ts"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.10",
+    "express": "^4.19.2",
+    "path-to-regexp": "^7.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm run build:cjs & npm run build:esm",
+    "build:cjs": "tsc --p ./cjs/tsconfig.json",
+    "build:esm": "tsc --p ./esm/tsconfig.json"
+  },
+  "keywords": [
+    "web",
+    "server",
+    "backend"
+  ],
+  "author": "hotsixman",
+  "license": "MIT"
+}
