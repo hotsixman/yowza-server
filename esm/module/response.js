@@ -13,7 +13,8 @@ export class YowzaServerResponse {
         }
     }
     send(res, event) {
-        res.setDefaultEncoding('utf-8');
+        if (res.setDefaultEncoding)
+            res.setDefaultEncoding('utf-8');
         res.statusCode = 200;
         Array.from(event.response.header.entries()).forEach(([key, value]) => {
             res.setHeader(key, value);

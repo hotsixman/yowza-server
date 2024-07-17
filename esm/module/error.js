@@ -20,7 +20,8 @@ export class YowzaServerError {
         }
     }
     send(res, event) {
-        res.setDefaultEncoding('utf-8');
+        if (res.setDefaultEncoding)
+            res.setDefaultEncoding('utf-8');
         res.statusCode = this.statusCode;
         switch (this.type) {
             case ('empty'): {
