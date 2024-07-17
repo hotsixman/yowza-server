@@ -1,0 +1,97 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.YowzaServerError = exports.YowzaServerResponse = exports.YowzaServerRouter = void 0;
+const path_to_regexp_1 = require("path-to-regexp");
+const http_1 = require("http");
+const http2_1 = require("http2");
+const https_1 = require("https");
+const event_1 = require("./module/event");
+const router_1 = require("./module/router");
+Object.defineProperty(exports, "YowzaServerRouter", { enumerable: true, get: function () { return router_1.YowzaServerRouter; } });
+const error_1 = require("./module/error");
+Object.defineProperty(exports, "YowzaServerError", { enumerable: true, get: function () { return error_1.YowzaServerError; } });
+const response_1 = require("./module/response");
+Object.defineProperty(exports, "YowzaServerResponse", { enumerable: true, get: function () { return response_1.YowzaServerResponse; } });
+class YowzaServer {
+    routers = new Map();
+    middlewares = [];
+    addRouter(...routers) {
+        routers.forEach(router => {
+            this.routers.set(router.route, router);
+        });
+    }
+    createListener(option) {
+        const routesStringSet = new Set();
+        const routesRegExpMap = new Map();
+        Array.from(this.routers.keys()).forEach((route) => {
+            const tokenData = (0, path_to_regexp_1.parse)(route);
+            if (tokenData.tokens.length === 1) {
+                routesStringSet.add(route);
+            }
+            else {
+                routesRegExpMap.set(route, (0, path_to_regexp_1.pathToRegexp)(route));
+            }
+        });
+        return async (req, res) => {
+            const event = new event_1.YowzaServerEvent(req, option);
+            for (const route of routesStringSet) {
+                if (event.request.url.pathname !== route) {
+                    continue;
+                }
+                const router = this.routers.get(route);
+                if (!router) {
+                    break;
+                }
+                const handled = await router.handle(event);
+                if (handled instanceof event_1.YowzaServerEvent) {
+                    new error_1.YowzaServerError(500).send(res, event);
+                }
+                else {
+                    handled.send(res, event);
+                }
+                return;
+            }
+            for (const [route, routeRegExp] of routesRegExpMap) {
+                if (!routeRegExp.test(event.request.url.pathname)) {
+                    continue;
+                }
+                const router = this.routers.get(route);
+                if (!router) {
+                    break;
+                }
+                const handled = await router.handle(event);
+                if (handled instanceof event_1.YowzaServerEvent) {
+                    new error_1.YowzaServerError(500).send(res, event);
+                }
+                else {
+                    handled.send(res, event);
+                }
+                return;
+            }
+            new error_1.YowzaServerError(404).send(res, event);
+        };
+    }
+    listen(option, listenCallback) {
+        const { http, http2, https } = option;
+        if (http) {
+            const httpServer = (0, http_1.createServer)(http.options ?? {});
+            httpServer.on('request', this.createListener({ protocol: 'http' }));
+            httpServer.listen(http.port);
+        }
+        if (http2) {
+            const http2Server = (0, http2_1.createServer)(http2.options ?? {});
+            http2Server.on('request', this.createListener({ protocol: 'http' }));
+            http2Server.listen(http2.port);
+        }
+        if (https) {
+            const httpsServer = (0, https_1.createServer)(https.options ?? {});
+            httpsServer.on('request', this.createListener({ protocol: 'https' }));
+            httpsServer.listen(https.port);
+        }
+        if (listenCallback) {
+            listenCallback();
+        }
+    }
+}
+exports.default = YowzaServer;
+//# sourceMappingURL=index.js.map
