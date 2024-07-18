@@ -20,6 +20,9 @@ class YowzaServer {
             this.routers.set(router.route, router);
         });
     }
+    addMiddleware(...middlewares) {
+        this.middlewares.push(...middlewares);
+    }
     createListener(option) {
         const routesStringSet = new Set();
         const routesRegExpMap = new Map();
@@ -34,6 +37,10 @@ class YowzaServer {
         });
         return async (req, res) => {
             const event = new event_1.YowzaServerEvent(req, option);
+            const middlewareHandled = (router_1.YowzaServerRouter.sequence(...this.middlewares))(event);
+            if (middlewareHandled instanceof response_1.YowzaServerResponse) {
+                return await middlewareHandled.send(res, event);
+            }
             for (const route of routesStringSet) {
                 if (event.request.url.pathname !== route) {
                     continue;
@@ -45,12 +52,11 @@ class YowzaServer {
                 try {
                     const handled = await router.handle(event);
                     if (handled instanceof event_1.YowzaServerEvent) {
-                        await new error_1.YowzaServerError(500).send(res, event);
+                        return await new error_1.YowzaServerError(500).send(res, event);
                     }
                     else {
-                        await handled.send(res, event);
+                        return await handled.send(res, event);
                     }
-                    return;
                 }
                 catch (err) {
                     console.warn(`Error occured at ${route}`);
@@ -62,6 +68,7 @@ class YowzaServer {
                 if (!routeRegExp.test(event.request.url.pathname)) {
                     continue;
                 }
+                event.params = ((0, path_to_regexp_1.match)(route)(event.request.url.pathname)).params;
                 const router = this.routers.get(route);
                 if (!router) {
                     break;
@@ -69,12 +76,11 @@ class YowzaServer {
                 try {
                     const handled = await router.handle(event);
                     if (handled instanceof event_1.YowzaServerEvent) {
-                        await new error_1.YowzaServerError(500).send(res, event);
+                        return await new error_1.YowzaServerError(500).send(res, event);
                     }
                     else {
-                        await handled.send(res, event);
+                        return await handled.send(res, event);
                     }
-                    return;
                 }
                 catch (err) {
                     console.warn(`Error occured at ${route}`);

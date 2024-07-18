@@ -1,4 +1,4 @@
-import { pathToRegexp, parse } from "path-to-regexp";
+import { pathToRegexp, parse, match } from "path-to-regexp";
 import { createServer as createHttpServer } from "http";
 import { createServer as createHttp2Server } from "http2";
 import { createServer as createHttpsServer } from "https";
@@ -14,6 +14,9 @@ export default class YowzaServer {
             this.routers.set(router.route, router);
         });
     }
+    addMiddleware(...middlewares) {
+        this.middlewares.push(...middlewares);
+    }
     createListener(option) {
         const routesStringSet = new Set();
         const routesRegExpMap = new Map();
@@ -28,6 +31,10 @@ export default class YowzaServer {
         });
         return async (req, res) => {
             const event = new YowzaServerEvent(req, option);
+            const middlewareHandled = (YowzaServerRouter.sequence(...this.middlewares))(event);
+            if (middlewareHandled instanceof YowzaServerResponse) {
+                return await middlewareHandled.send(res, event);
+            }
             for (const route of routesStringSet) {
                 if (event.request.url.pathname !== route) {
                     continue;
@@ -39,12 +46,11 @@ export default class YowzaServer {
                 try {
                     const handled = await router.handle(event);
                     if (handled instanceof YowzaServerEvent) {
-                        await new YowzaServerError(500).send(res, event);
+                        return await new YowzaServerError(500).send(res, event);
                     }
                     else {
-                        await handled.send(res, event);
+                        return await handled.send(res, event);
                     }
-                    return;
                 }
                 catch (err) {
                     console.warn(`Error occured at ${route}`);
@@ -56,6 +62,7 @@ export default class YowzaServer {
                 if (!routeRegExp.test(event.request.url.pathname)) {
                     continue;
                 }
+                event.params = (match(route)(event.request.url.pathname)).params;
                 const router = this.routers.get(route);
                 if (!router) {
                     break;
@@ -63,12 +70,11 @@ export default class YowzaServer {
                 try {
                     const handled = await router.handle(event);
                     if (handled instanceof YowzaServerEvent) {
-                        await new YowzaServerError(500).send(res, event);
+                        return await new YowzaServerError(500).send(res, event);
                     }
                     else {
-                        await handled.send(res, event);
+                        return await handled.send(res, event);
                     }
-                    return;
                 }
                 catch (err) {
                     console.warn(`Error occured at ${route}`);

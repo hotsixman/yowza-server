@@ -31,17 +31,19 @@ export class YowzaServerResponse {
         Array.from(event.response.header.entries()).forEach(([key, value]) => {
             res.setHeader(key, value);
         });
+        const cookieString = event.response.cookie.stringify();
+        res.setHeader('Set-Cookie', cookieString);
         await this.sendSwitch(res, event);
     }
     async sendSwitch(res, event) {
         switch (this.option.type) {
             case ('empty'): {
-                res.setHeader('Content-Type', 'text/plain');
+                res.setHeader('Content-Type', 'text/plain; charset=utf8');
                 res.end();
                 break;
             }
             case ('html'): {
-                res.setHeader('Content-Type', 'text/html');
+                res.setHeader('Content-Type', 'text/html; charset=utf8');
                 if (this.option.content instanceof ReadStream) {
                     this.option.content.pipe(res);
                 }
@@ -51,7 +53,7 @@ export class YowzaServerResponse {
                 break;
             }
             case ('json'): {
-                res.setHeader('Content-Type', 'application/json');
+                res.setHeader('Content-Type', 'application/json; charset=utf8');
                 if (this.option.content instanceof ReadStream) {
                     this.option.content.pipe(res);
                 }
@@ -61,7 +63,7 @@ export class YowzaServerResponse {
                 break;
             }
             case ('plain'): {
-                res.setHeader('Content-Type', 'text/plain');
+                res.setHeader('Content-Type', 'text/plain; charset=utf8');
                 if (this.option.content instanceof ReadStream) {
                     this.option.content.pipe(res);
                 }
@@ -71,7 +73,7 @@ export class YowzaServerResponse {
                 break;
             }
             case ('raw'): {
-                res.setHeader('Content-Type', 'text/plain');
+                res.setHeader('Content-Type', 'text/plain; charset=utf8');
                 if (this.option.content instanceof ReadStream) {
                     this.option.content.pipe(res);
                 }
@@ -88,7 +90,7 @@ export class YowzaServerResponse {
                     detector.on('file-type', (fileType) => {
                         if (fileType !== null) {
                             try {
-                                res.setHeader('Content-Type', fileType.mime);
+                                res.setHeader('Content-Type', fileType.mime + '; charset=utf8');
                             }
                             catch { }
                         }
@@ -101,7 +103,7 @@ export class YowzaServerResponse {
                     const fileTypeMime = await YowzaServerResponse.getFileTypeMime();
                     const result = fileTypeMime.parse(this.option.content);
                     if (result) {
-                        res.setHeader('Content-Type', result.mime);
+                        res.setHeader('Content-Type', result.mime + '; charset=utf8');
                     }
                     res.end(this.option.content);
                 }
@@ -112,7 +114,7 @@ export class YowzaServerResponse {
                     detector.on('file-type', (fileType) => {
                         if (fileType !== null) {
                             try {
-                                res.setHeader('Content-Type', fileType.mime);
+                                res.setHeader('Content-Type', fileType.mime + '; charset=utf8');
                             }
                             catch { }
                         }
@@ -129,10 +131,10 @@ export class YowzaServerResponse {
                     const fileTypeMime = await YowzaServerResponse.getFileTypeMime();
                     const result = fileTypeMime.parse(this.option.content);
                     if (this.option.mime) {
-                        res.setHeader('Content-Type', this.option.mime);
+                        res.setHeader('Content-Type', this.option.mime + '; charset=utf8');
                     }
                     else if (result) {
-                        res.setHeader('Content-Type', result.mime);
+                        res.setHeader('Content-Type', result.mime + '; charset=utf8');
                     }
                     res.end(this.option.content);
                 }
@@ -147,7 +149,7 @@ export class YowzaServerResponse {
                     res.setHeader('Content-Length', end - start);
                     res.setHeader('Content-Range', "bytes " + start + "-" + end + "/" + fileSize);
                     res.setHeader('Accept-Ranges', "bytes");
-                    res.setHeader('Content-Type', this.option.mime ?? (mime.lookup(path.extname(filePath)) || 'video/mp4'));
+                    res.setHeader('Content-Type', (this.option.mime ?? (mime.lookup(path.extname(filePath)) || 'video/mp4')) + '; charset=utf8');
                     res.statusCode = 206;
                     const stream = createReadStream(filePath, { start, end });
                     stream.pipe(res);

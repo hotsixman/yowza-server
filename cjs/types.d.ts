@@ -10,7 +10,7 @@ import { YowzaServerEvent } from "./module/event";
 import { YowzaServerResponse } from "./module/response";
 import { YowzaServerError } from "./module/error";
 import { ReadStream } from "fs";
-export interface YowzaServerCreateListerOption {
+export interface YowzaServerCreateListenOption {
     protocol: 'http' | 'https';
 }
 export interface YowzaServerListenOption {
@@ -27,7 +27,14 @@ export interface YowzaServerListenOption {
         options?: HttpsServerOptions;
     };
 }
-export type YowzaServerHandler = (event: YowzaServerEvent) => Promise<YowzaServerEvent | YowzaServerResponse | YowzaServerError>;
+export type YowzaServerHandler<T extends YowzaServerHandlerGeneric = YowzaServerHandlerGeneric> = (event: YowzaServerEvent & T) => Promise<YowzaServerEvent | YowzaServerResponse | YowzaServerError>;
+export interface YowzaServerHandlerGeneric {
+    locals?: Record<string, any>;
+    params?: Readonly<Params>;
+}
+interface Params {
+    [key: string]: string;
+}
 export type YowzaServerResponseOption = YowzaServerTextResponseOption | YowzaServerBufferResponseOption | YowzaServerFileResponseOption | YowzaServerMediaResponseOption;
 export interface YowzaServerTextResponseOption {
     type: 'html' | 'json' | 'plain' | 'raw';
@@ -47,5 +54,26 @@ export interface YowzaServerMediaResponseOption {
     mime?: string;
 }
 type Path = string;
+export interface YowzaServerResponseCookieData {
+    value: string;
+    option: YowzaServerResponseCookieOption;
+}
+export interface YowzaServerResponseCookieOption {
+    path: string;
+    domain?: string;
+    expires?: number | Date;
+    httpOnly?: boolean;
+    maxAge?: number;
+    secure?: boolean;
+    partitioned?: boolean;
+    sameSite?: 'strict' | 'lax' | 'none';
+}
+export interface FormFile {
+    filename?: string;
+    mime?: string;
+    encoding?: string;
+    transfer?: string;
+    content: Buffer;
+}
 export {};
 //# sourceMappingURL=types.d.ts.map
