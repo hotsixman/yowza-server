@@ -1,5 +1,5 @@
-import { pathToRegexp, parse } from "path-to-regexp";
-import { YowzaServerCreateListerOption, YowzaServerHandler, YowzaServerListenOption } from "./types";
+import { pathToRegexp, parse, compile, match } from "path-to-regexp";
+import { YowzaServerCreateListenOption, YowzaServerHandler, YowzaServerHandlerGeneric, YowzaServerListenOption } from "./types";
 import { createServer as createHttpServer } from "http";
 import { createServer as createHttp2Server, Http2ServerRequest, Http2ServerResponse } from "http2";
 import { createServer as createHttpsServer } from "https";
@@ -7,10 +7,11 @@ import { YowzaServerEvent } from "./module/event";
 import { YowzaServerRouter } from "./module/router";
 import { YowzaServerError } from "./module/error";
 import { YowzaServerResponse } from "./module/response";
+import streamToPromise from "stream-to-promise";
 
 export default class YowzaServer {
     private routers: Map<string, YowzaServerRouter> = new Map();
-    private middlewares: YowzaServerHandler[] = [];
+    private middlewares: YowzaServerHandler<any>[] = [];
 
     addRouter(...routers: YowzaServerRouter[]) {
         routers.forEach(router => {
@@ -18,7 +19,11 @@ export default class YowzaServer {
         })
     }
 
-    private createListener(option: YowzaServerCreateListerOption): (request: Http2ServerRequest, response: Http2ServerResponse) => void {
+    addMiddleware<T extends YowzaServerHandlerGeneric>(...middlewares: YowzaServerHandler<T>[]) {
+        this.middlewares.push(...middlewares);
+    }
+
+    private createListener(option: YowzaServerCreateListenOption): (request: Http2ServerRequest, response: Http2ServerResponse) => void {
         const routesStringSet: Set<string> = new Set();
         const routesRegExpMap: Map<string, RegExp> = new Map();
 
@@ -35,6 +40,11 @@ export default class YowzaServer {
         return async (req, res) => {
             const event = new YowzaServerEvent(req, option);
 
+            const middlewareHandled = (YowzaServerRouter.sequence(...this.middlewares))(event);
+            if (middlewareHandled instanceof YowzaServerResponse) {
+                return await middlewareHandled.send(res, event);
+            }
+
             //route
             for (const route of routesStringSet) {
                 if (event.request.url.pathname !== route) {
@@ -49,12 +59,11 @@ export default class YowzaServer {
                 try {
                     const handled = await router.handle(event);
                     if (handled instanceof YowzaServerEvent) {
-                        await new YowzaServerError(500).send(res, event);
+                        return await new YowzaServerError(500).send(res, event);
                     }
                     else {
-                        await handled.send(res, event);
+                        return await handled.send(res, event);
                     }
-                    return;
                 }
                 catch (err) {
                     console.warn(`Error occured at ${route}`);
@@ -70,6 +79,9 @@ export default class YowzaServer {
                     continue;
                 }
 
+                //@ts-expect-error
+                event.params = (match(route)(event.request.url.pathname)).params;
+
                 const router = this.routers.get(route);
                 if (!router) {
                     break;
@@ -78,12 +90,11 @@ export default class YowzaServer {
                 try {
                     const handled = await router.handle(event);
                     if (handled instanceof YowzaServerEvent) {
-                        await new YowzaServerError(500).send(res, event);
+                        return await new YowzaServerError(500).send(res, event);
                     }
                     else {
-                        await handled.send(res, event);
+                        return await handled.send(res, event);
                     }
-                    return;
                 }
                 catch (err) {
                     console.warn(`Error occured at ${route}`);
