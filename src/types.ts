@@ -3,11 +3,11 @@ import { ServerOptions as Http2ServerOptions } from "http2";
 import { ServerOptions as HttpServerOptions } from "http";
 import { YowzaServerEvent } from "./module/event";
 import { YowzaServerResponse } from "./module/response";
-import { Stream } from "stream";
 import { YowzaServerError } from "./module/error";
 import { ReadStream } from "fs";
 
-export interface YowzaServerCreateListerOption {
+//listen option
+export interface YowzaServerCreateListenOption {
     protocol: 'http' | 'https'
 };
 export interface YowzaServerListenOption {
@@ -25,8 +25,17 @@ export interface YowzaServerListenOption {
     }
 };
 
-export type YowzaServerHandler = (event: YowzaServerEvent) => Promise<YowzaServerEvent | YowzaServerResponse | YowzaServerError>;
+//handler
+export type YowzaServerHandler<T extends YowzaServerHandlerGeneric = YowzaServerHandlerGeneric> = (event: YowzaServerEvent & T) => Promise<YowzaServerEvent | YowzaServerResponse | YowzaServerError>;
+export interface YowzaServerHandlerGeneric {
+    locals?: Record<string, any>;
+    params?: Readonly<Params>
+}
+interface Params{
+    [key: string]: string
+}
 
+//response option
 export type YowzaServerResponseOption = YowzaServerTextResponseOption | YowzaServerBufferResponseOption | YowzaServerFileResponseOption | YowzaServerMediaResponseOption;
 export interface YowzaServerTextResponseOption {
     type: 'html' | 'json' | 'plain' | 'raw';
@@ -46,3 +55,28 @@ export interface YowzaServerMediaResponseOption {
     mime?: string;
 }
 type Path = string;
+
+//response cookie
+export interface YowzaServerResponseCookieData{
+    value: string;
+    option: YowzaServerResponseCookieOption;
+}
+export interface YowzaServerResponseCookieOption{
+    path: string;
+    domain?: string;
+    expires?: number | Date;
+    httpOnly?: boolean;
+    maxAge?: number;
+    secure?: boolean;
+    partitioned?: boolean;
+    sameSite?: 'strict' | 'lax' | 'none';
+}
+
+//form file data
+export interface FormFile{
+    filename?: string;
+    mime?: string;
+    encoding?: string;
+    transfer?: string;
+    content: Buffer
+}

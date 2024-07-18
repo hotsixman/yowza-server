@@ -1,4 +1,4 @@
-import { YowzaServerHandler } from "../types";
+import { YowzaServerHandler, YowzaServerHandlerGeneric } from "../types";
 import { YowzaServerError } from "./error";
 import { YowzaServerEvent } from "./event";
 
@@ -21,14 +21,14 @@ export class YowzaServerRouter {
     }
 
     route: string;
-    ALL: YowzaServerHandler[] = [];
-    methodHandlers: Map<string, YowzaServerHandler[]> = new Map();
+    ALL: YowzaServerHandler<any>[] = [];
+    methodHandlers: Map<string, YowzaServerHandler<any>[]> = new Map();
 
     constructor(route: string) {
         this.route = route;
     }
 
-    addHandler(handler: YowzaServerHandler, method?: string) {
+    addHandler<T extends YowzaServerHandlerGeneric>(handler: YowzaServerHandler<T>, method?: string) {
         if (method) {
             method = method.toUpperCase();
             let handlers = this.methodHandlers.get(method);
