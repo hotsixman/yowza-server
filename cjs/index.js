@@ -42,14 +42,21 @@ class YowzaServer {
                 if (!router) {
                     break;
                 }
-                const handled = await router.handle(event);
-                if (handled instanceof event_1.YowzaServerEvent) {
-                    new error_1.YowzaServerError(500).send(res, event);
+                try {
+                    const handled = await router.handle(event);
+                    if (handled instanceof event_1.YowzaServerEvent) {
+                        await new error_1.YowzaServerError(500).send(res, event);
+                    }
+                    else {
+                        await handled.send(res, event);
+                    }
+                    return;
                 }
-                else {
-                    handled.send(res, event);
+                catch (err) {
+                    console.warn(`Error occured at ${route}`);
+                    console.warn(err);
+                    return await new error_1.YowzaServerError(500).send(res, event);
                 }
-                return;
             }
             for (const [route, routeRegExp] of routesRegExpMap) {
                 if (!routeRegExp.test(event.request.url.pathname)) {
@@ -59,16 +66,23 @@ class YowzaServer {
                 if (!router) {
                     break;
                 }
-                const handled = await router.handle(event);
-                if (handled instanceof event_1.YowzaServerEvent) {
-                    new error_1.YowzaServerError(500).send(res, event);
+                try {
+                    const handled = await router.handle(event);
+                    if (handled instanceof event_1.YowzaServerEvent) {
+                        await new error_1.YowzaServerError(500).send(res, event);
+                    }
+                    else {
+                        await handled.send(res, event);
+                    }
+                    return;
                 }
-                else {
-                    handled.send(res, event);
+                catch (err) {
+                    console.warn(`Error occured at ${route}`);
+                    console.warn(err);
+                    return await new error_1.YowzaServerError(500).send(res, event);
                 }
-                return;
             }
-            new error_1.YowzaServerError(404).send(res, event);
+            return await new error_1.YowzaServerError(404).send(res, event);
         };
     }
     listen(option, listenCallback) {

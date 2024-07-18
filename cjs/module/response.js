@@ -1,28 +1,46 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.YowzaServerResponse = void 0;
-const stream_1 = require("stream");
+const fs_1 = require("fs");
+const mime_types_1 = __importDefault(require("mime-types"));
+const path_1 = __importDefault(require("path"));
 class YowzaServerResponse {
-    type;
-    content;
+    static fileTypeMime;
+    static async getFileTypeMime() {
+        if (this.fileTypeMime === undefined) {
+            this.fileTypeMime = await import('file-type-mime');
+        }
+        return this.fileTypeMime;
+    }
+    static StreamFileType;
+    static async getStreamFileType() {
+        if (this.StreamFileType === undefined) {
+            this.StreamFileType = (await import('stream-file-type')).default;
+        }
+        return this.StreamFileType;
+    }
+    option = {
+        type: 'empty'
+    };
     constructor(option) {
         if (option) {
-            this.type = option.type;
-            this.content = option.content;
-        }
-        else {
-            this.type = 'empty';
-            this.content = '';
+            this.option = option;
         }
     }
-    send(res, event) {
+    async send(res, event) {
         if (res.setDefaultEncoding)
             res.setDefaultEncoding('utf-8');
         res.statusCode = 200;
         Array.from(event.response.header.entries()).forEach(([key, value]) => {
             res.setHeader(key, value);
         });
-        switch (this.type) {
+        await this.sendSwitch(res, event);
+    }
+    async sendSwitch(res, event) {
+        switch (this.option.type) {
             case ('empty'): {
                 res.setHeader('Content-Type', 'text/plain');
                 res.end();
@@ -30,41 +48,115 @@ class YowzaServerResponse {
             }
             case ('html'): {
                 res.setHeader('Content-Type', 'text/html');
-                if (this.content instanceof stream_1.Stream) {
-                    this.content.pipe(res);
+                if (this.option.content instanceof fs_1.ReadStream) {
+                    this.option.content.pipe(res);
                 }
                 else {
-                    res.end(this.content);
+                    res.end(this.option.content);
                 }
                 break;
             }
             case ('json'): {
                 res.setHeader('Content-Type', 'application/json');
-                if (this.content instanceof stream_1.Stream) {
-                    this.content.pipe(res);
+                if (this.option.content instanceof fs_1.ReadStream) {
+                    this.option.content.pipe(res);
                 }
                 else {
-                    res.end(this.content);
+                    res.end(this.option.content);
                 }
                 break;
             }
             case ('plain'): {
                 res.setHeader('Content-Type', 'text/plain');
-                if (this.content instanceof stream_1.Stream) {
-                    this.content.pipe(res);
+                if (this.option.content instanceof fs_1.ReadStream) {
+                    this.option.content.pipe(res);
                 }
                 else {
-                    res.end(this.content);
+                    res.end(this.option.content);
                 }
                 break;
             }
             case ('raw'): {
                 res.setHeader('Content-Type', 'text/plain');
-                if (this.content instanceof stream_1.Stream) {
-                    this.content.pipe(res);
+                if (this.option.content instanceof fs_1.ReadStream) {
+                    this.option.content.pipe(res);
                 }
                 else {
-                    res.end(this.content);
+                    res.end(this.option.content);
+                }
+                break;
+            }
+            case ('file'): {
+                if (this.option.content instanceof fs_1.ReadStream) {
+                    res.setHeader('Accept-Ranges', 'bytes');
+                    const StreamFileType = await YowzaServerResponse.getStreamFileType();
+                    const detector = new StreamFileType();
+                    detector.on('file-type', (fileType) => {
+                        if (fileType !== null) {
+                            try {
+                                res.setHeader('Content-Type', fileType.mime);
+                            }
+                            catch { }
+                        }
+                    });
+                    const content = this.option.content;
+                    content.pipe(detector).pipe(res);
+                }
+                else if (this.option.content instanceof Buffer) {
+                    res.setHeader('Accept-Ranges', 'bytes');
+                    const fileTypeMime = await YowzaServerResponse.getFileTypeMime();
+                    const result = fileTypeMime.parse(this.option.content);
+                    if (result) {
+                        res.setHeader('Content-Type', result.mime);
+                    }
+                    res.end(this.option.content);
+                }
+                else {
+                    res.setHeader('Accept-Ranges', 'bytes');
+                    const StreamFileType = await YowzaServerResponse.getStreamFileType();
+                    const detector = new StreamFileType();
+                    detector.on('file-type', (fileType) => {
+                        if (fileType !== null) {
+                            try {
+                                res.setHeader('Content-Type', fileType.mime);
+                            }
+                            catch { }
+                        }
+                    });
+                    const stream = (0, fs_1.createReadStream)(this.option.content);
+                    stream.pipe(detector).pipe(res);
+                }
+                break;
+            }
+            case ('media'): {
+                if (this.option.content instanceof Buffer) {
+                    res.setHeader('Accept-Ranges', 'bytes');
+                    res.setHeader('Content-Length', this.option.content.byteLength);
+                    const fileTypeMime = await YowzaServerResponse.getFileTypeMime();
+                    const result = fileTypeMime.parse(this.option.content);
+                    if (this.option.mime) {
+                        res.setHeader('Content-Type', this.option.mime);
+                    }
+                    else if (result) {
+                        res.setHeader('Content-Type', result.mime);
+                    }
+                    res.end(this.option.content);
+                }
+                else {
+                    const filePath = this.option.content;
+                    const stats = (0, fs_1.statSync)(filePath);
+                    const range = event.request.header.get('range');
+                    const fileSize = stats.size;
+                    const chunkSize = 1024 ** 2;
+                    const start = range ? Number(range.replace(/\D/g, "")) : 1;
+                    const end = Math.min(start + chunkSize, fileSize - 1);
+                    res.setHeader('Content-Length', end - start);
+                    res.setHeader('Content-Range', "bytes " + start + "-" + end + "/" + fileSize);
+                    res.setHeader('Accept-Ranges', "bytes");
+                    res.setHeader('Content-Type', this.option.mime ?? (mime_types_1.default.lookup(path_1.default.extname(filePath)) || 'video/mp4'));
+                    res.statusCode = 206;
+                    const stream = (0, fs_1.createReadStream)(filePath, { start, end });
+                    stream.pipe(res);
                 }
                 break;
             }

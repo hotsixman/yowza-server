@@ -9,7 +9,7 @@ export declare class YowzaServerEvent {
     });
 }
 export declare class YowzaServerEventRequest {
-    header: ReadonlyMap<string, string | readonly string[]>;
+    header: ReadonlyMap<string, string>;
     readonly url: Readonly<URL>;
     readonly protocol: 'http' | 'https';
     readonly method: string;
