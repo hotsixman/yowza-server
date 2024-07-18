@@ -46,14 +46,22 @@ export default class YowzaServer {
                     break;
                 }
 
-                const handled = await router.handle(event);
-                if (handled instanceof YowzaServerEvent) {
-                    new YowzaServerError(500).send(res, event);
+                try {
+                    const handled = await router.handle(event);
+                    if (handled instanceof YowzaServerEvent) {
+                        await new YowzaServerError(500).send(res, event);
+                    }
+                    else {
+                        await handled.send(res, event);
+                    }
+                    return;
                 }
-                else {
-                    handled.send(res, event);
+                catch (err) {
+                    console.warn(`Error occured at ${route}`);
+                    console.warn(err);
+
+                    return await new YowzaServerError(500).send(res, event);
                 }
-                return;
             }
 
             //dynamic route
@@ -67,17 +75,25 @@ export default class YowzaServer {
                     break;
                 }
 
-                const handled = await router.handle(event);
-                if (handled instanceof YowzaServerEvent) {
-                    new YowzaServerError(500).send(res, event);
+                try {
+                    const handled = await router.handle(event);
+                    if (handled instanceof YowzaServerEvent) {
+                        await new YowzaServerError(500).send(res, event);
+                    }
+                    else {
+                        await handled.send(res, event);
+                    }
+                    return;
                 }
-                else {
-                    handled.send(res, event);
+                catch (err) {
+                    console.warn(`Error occured at ${route}`);
+                    console.warn(err);
+
+                    return await new YowzaServerError(500).send(res, event);
                 }
-                return;
             }
 
-            new YowzaServerError(404).send(res, event);
+            return await new YowzaServerError(404).send(res, event);
         }
     }
 

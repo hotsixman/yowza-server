@@ -5,6 +5,7 @@ import { YowzaServerEvent } from "./module/event";
 import { YowzaServerResponse } from "./module/response";
 import { Stream } from "stream";
 import { YowzaServerError } from "./module/error";
+import { ReadStream } from "fs";
 
 export interface YowzaServerCreateListerOption {
     protocol: 'http' | 'https'
@@ -26,16 +27,22 @@ export interface YowzaServerListenOption {
 
 export type YowzaServerHandler = (event: YowzaServerEvent) => Promise<YowzaServerEvent | YowzaServerResponse | YowzaServerError>;
 
-export type YowzaServerResponseOption = YowzaServerTextResponseOption | YowzaServerBufferResponseOption | YowzaServerFileReesponseOption;
+export type YowzaServerResponseOption = YowzaServerTextResponseOption | YowzaServerBufferResponseOption | YowzaServerFileResponseOption | YowzaServerMediaResponseOption;
 export interface YowzaServerTextResponseOption {
     type: 'html' | 'json' | 'plain' | 'raw';
-    content: string | Stream;
+    content: string | ReadStream;
 }
 export interface YowzaServerBufferResponseOption {
     type: 'buffer';
     content: Buffer;
 }
-export interface YowzaServerFileReesponseOption {
+export interface YowzaServerFileResponseOption {
     type: 'file';
-    content: Buffer | Stream;
+    content: Buffer | ReadStream | Path;
 }
+export interface YowzaServerMediaResponseOption {
+    type: 'media';
+    content: Buffer | Path;
+    mime?: string;
+}
+type Path = string;
