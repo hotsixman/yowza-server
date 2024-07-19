@@ -136,5 +136,6 @@ export default class YowzaServer {
 export {
     YowzaServerRouter,
     YowzaServerResponse,
-    YowzaServerError
+    YowzaServerError,
+    YowzaServerEvent
 }
