@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.YowzaServerError = exports.YowzaServerResponse = exports.YowzaServerRouter = void 0;
+exports.YowzaServerEvent = exports.YowzaServerError = exports.YowzaServerResponse = exports.YowzaServerRouter = void 0;
 const path_to_regexp_1 = require("path-to-regexp");
 const http_1 = require("http");
 const http2_1 = require("http2");
 const https_1 = require("https");
 const event_1 = require("./module/event");
+Object.defineProperty(exports, "YowzaServerEvent", { enumerable: true, get: function () { return event_1.YowzaServerEvent; } });
 const router_1 = require("./module/router");
 Object.defineProperty(exports, "YowzaServerRouter", { enumerable: true, get: function () { return router_1.YowzaServerRouter; } });
 const error_1 = require("./module/error");

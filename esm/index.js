@@ -107,5 +107,5 @@ export default class YowzaServer {
         }
     }
 }
-export { YowzaServerRouter, YowzaServerResponse, YowzaServerError };
+export { YowzaServerRouter, YowzaServerResponse, YowzaServerError, YowzaServerEvent };
 //# sourceMappingURL=index.js.map
