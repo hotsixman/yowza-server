@@ -16,7 +16,7 @@ export declare class YowzaServerEventRequest {
     readonly url: Readonly<URL>;
     readonly protocol: 'http' | 'https';
     readonly method: string;
-    readonly cookie: Map<string, string>;
+    readonly cookie: ReadonlyMap<string, string>;
     private bodyPromise;
     constructor(req: Http2ServerRequest, option: {
         protocol: 'http' | 'https';

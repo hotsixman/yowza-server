@@ -29,13 +29,14 @@ export class YowzaServerEventRequest {
             }
         });
         this.header = header;
-        this.cookie = new Map();
+        let cookie = new Map();
         if (req.headers['cookie']) {
             req.headers['cookie'].split(';').forEach((cookieString) => {
                 const splited = cookieString.split('=');
-                this.cookie.set(decodeURIComponent(splited[0]), decodeURIComponent(splited[1]));
+                cookie.set(decodeURIComponent(splited[0]), decodeURIComponent(splited[1]));
             });
         }
+        this.cookie = cookie;
         const reqSymbol = Object.getOwnPropertySymbols(req).find(symbol => symbol.description === "req");
         if (reqSymbol) {
             const request = req[reqSymbol];

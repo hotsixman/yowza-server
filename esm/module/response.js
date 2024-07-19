@@ -105,21 +105,24 @@ export class YowzaServerResponse {
                     if (result) {
                         res.setHeader('Content-Type', result.mime + '; charset=utf8');
                     }
+                    res.setHeader('Content-Length', this.option.content.byteLength);
                     res.end(this.option.content);
                 }
                 else {
-                    res.setHeader('Accept-Ranges', 'bytes');
+                    const filePath = this.option.content;
+                    const stats = statSync(filePath);
+                    const range = event.request.header.get('range');
+                    const fileSize = stats.size;
+                    const chunkSize = 1024 ** 2;
+                    const start = range ? Number(range.replace(/\D/g, "")) : 1;
+                    const end = Math.min(start + chunkSize, fileSize - 1);
+                    res.setHeader('Content-Length', end - start);
+                    res.setHeader('Content-Range', "bytes " + start + "-" + end + "/" + fileSize);
+                    res.setHeader('Accept-Ranges', "bytes");
+                    res.statusCode = 206;
                     const StreamFileType = await YowzaServerResponse.getStreamFileType();
                     const detector = new StreamFileType();
-                    detector.on('file-type', (fileType) => {
-                        if (fileType !== null) {
-                            try {
-                                res.setHeader('Content-Type', fileType.mime + '; charset=utf8');
-                            }
-                            catch { }
-                        }
-                    });
-                    const stream = createReadStream(this.option.content);
+                    const stream = createReadStream(filePath, { start, end });
                     stream.pipe(detector).pipe(res);
                 }
                 break;
@@ -155,6 +158,19 @@ export class YowzaServerResponse {
                     stream.pipe(res);
                 }
                 break;
+            }
+            case ('buffer'): {
+                res.setHeader('Accept-Ranges', 'bytes');
+                res.setHeader('Content-Length', this.option.content.byteLength);
+                const fileTypeMime = await YowzaServerResponse.getFileTypeMime();
+                const result = fileTypeMime.parse(this.option.content);
+                if (this.option.mime) {
+                    res.setHeader('Content-Type', this.option.mime + '; charset=utf8');
+                }
+                else if (result) {
+                    res.setHeader('Content-Type', result.mime + '; charset=utf8');
+                }
+                res.end(this.option.content);
             }
         }
     }

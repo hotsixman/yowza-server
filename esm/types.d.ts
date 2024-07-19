@@ -43,6 +43,7 @@ export interface YowzaServerTextResponseOption {
 export interface YowzaServerBufferResponseOption {
     type: 'buffer';
     content: Buffer;
+    mime?: string;
 }
 export interface YowzaServerFileResponseOption {
     type: 'file';
