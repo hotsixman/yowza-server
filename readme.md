@@ -27,17 +27,27 @@ server.listen({
 
 ```ts
 const server = new YowzaServer();
-server.addRouter(...routers: YowzaServerRouters[]);
+server.addRouter(...routers: YowzaServerRouter[]);
 ```
 
 - This method adds routers for server.
 - If there is duplicate route, the last router added will be used.
 
+### `method` YowzaServer.addMiddleware
+
+```ts
+const server = new YowzaServer();
+server.addMiddleware<T extends YowzaServerHandlerGeneric>(...middlewares: YowzaServerHandler[]);
+```
+
+- This method adds middlewares for server.
+- middlewares will be called before router handlers
+
 ### `method` YowzaServer.listen
 
 ```ts
 const server = new YowzaServer();
-YowzaServer.listen(option: YowzaServerListenOption, listenCallback?: () => void);
+server.listen(option: YowzaServerListenOption, listenCallback?: () => void);
 
 interface YowzaServerListenOption{
     http?: {
@@ -91,7 +101,7 @@ testRouter.addHandler(async(event) => {
 
 ```ts
 const router = new YowzaServerRouter('/foo');
-router.addHandler(handler: YowzaServerHandler, httpMethod?: string);
+router.addHandler<T extends YowzaServerHandlerGeneric>(handler: YowzaServerHandler, httpMethod?: string);
 ```
 
 - This method adds a handler for its route.
@@ -105,6 +115,23 @@ router.addHandler(handler: YowzaServerHandler, httpMethod?: string);
 - This method is a function that manages all handlers for this router.
 
 ## `class` YowzaServerEvent
+
+```ts
+export class YowzaServerEvent {
+    request: YowzaServerEventRequest;
+    response: YowzaServerEventResponse;
+    locals: Record<string, any>;
+    params: Record<string, string>;
+}
+```
+
+### `property` locals `Record<string, any>`
+
+- This property is used to pass some datas between handlers.
+
+### `property` locals `Record<string, params>`
+
+- You can get url parameters through this property when using dynamic route.
 
 ### `class` YowzaServerEventRequest
 - This class creates an instance which contains informations about the request to the server.
@@ -121,6 +148,21 @@ router.addHandler(handler: YowzaServerHandler, httpMethod?: string);
 #### `property` method `string`
 - This property is a method for a request to the server.
 
+#### `property` cookie `ReadonlyMap<string, string>`
+- This property has request cookies
+
+#### `async method` buffer
+- This method returns the request buffer.
+
+#### `async method` text
+- This method returns the converted string from the request buffer.
+
+#### `async method` json
+- This method returns parsed json from the reqeust string.
+
+#### `async method` form `Map<string, string | FormFile>`
+- This method returns form data from the reqeust string.
+
 ### `class` YowzaServerEventResponse
 - This class creates an instance which containes informations about the response from the server.
 - If a handler modifies this instance, the next handler will receive the modified instance.
@@ -128,6 +170,32 @@ router.addHandler(handler: YowzaServerHandler, httpMethod?: string);
 #### `property` header `Map<string, string | number | readonly string[]>`
 - This property contains headers of the response from the server.
 - Some headers can be overwritten.
+
+#### `property` cookie `YowzaServerResponseCookie`
+- This property contains headers of the response from the server.
+- The request `Set-Cookie` header will be overwritten.
+
+### `class` YowzaServerResponseCookie
+
+#### `method` set
+```ts
+set(key: string, value: string, option: YowzaServerResponseCookieOption);
+```
+
+#### `method` get
+```ts
+get(key: string): string | undefined
+```
+
+#### `method` delete
+```ts
+delete(key: string): boolean
+```
+
+#### `method` stringify
+```ts
+stringify(): string[]
+```
 
 ## `class` YowzaServerResponse
 
@@ -137,16 +205,29 @@ router.addHandler(handler: YowzaServerHandler, httpMethod?: string);
 ```ts
 constructor(option?: YowzaServerResponseOption);
 
-export type YowzaServerResponseOption = YowzaServerTextResponseOption | YowzaServerBufferResponseOption;
+export type YowzaServerResponseOption = YowzaServerTextResponseOption | YowzaServerBufferResponseOption | YowzaServerFileResponseOption | YowzaServerMediaResponseOption;
 export interface YowzaServerTextResponseOption {
     type: 'html' | 'json' | 'plain' | 'raw';
-    content: string | Stream;
+    content: string | ReadStream;
 }
 export interface YowzaServerBufferResponseOption {
     type: 'buffer';
     content: Buffer;
+    mime?: string;
 }
+export interface YowzaServerFileResponseOption {
+    type: 'file';
+    content: Buffer | ReadStream | Path;
+}
+export interface YowzaServerMediaResponseOption {
+    type: 'media';
+    content: Buffer | Path;
+    mime?: string;
+}
+type Path = string;
 ```
+
+- It is recommended that you use `'media'` type when sending an audio/video file.
 
 ### `method` send
 
@@ -167,9 +248,44 @@ constructor(status: number, option?: YowzaServerResponseOption);
 - Perhaps this method will not be used directly.
 - When `YowzaServerHandler` returns this instance, the server will call this method which sends a error response.
 
-# types
+## types
 
-## YowzaServerHandler
+### YowzaServerHandler
 ```ts
-export type YowzaServerHandler = (event: YowzaServerEvent) => Promise<YowzaServerEvent | YowzaServerResponse | YowzaServerError>;
+export type YowzaServerHandler<T extends YowzaServerHandlerGeneric> = (event: YowzaServerEvent & T) => Promise<YowzaServerEvent | YowzaServerResponse | YowzaServerError>;
+```
+
+### YowzaServerHandlerGeneric
+
+```ts
+export interface YowzaServerHandlerGeneric {
+    locals?: Record<string, any>;
+    params?: Readonly<Params>
+}
+```
+
+### FormFile
+
+```ts
+export interface FormFile{
+    filename?: string;
+    mime?: string;
+    encoding?: string;
+    transfer?: string;
+    content: Buffer
+}
+```
+
+### YowzaServerCookieOption
+```ts
+export interface YowzaServerResponseCookieOption{
+    path: string;
+    domain?: string;
+    expires?: number | Date;
+    httpOnly?: boolean;
+    maxAge?: number;
+    secure?: boolean;
+    partitioned?: boolean;
+    sameSite?: 'strict' | 'lax' | 'none';
+}
 ```

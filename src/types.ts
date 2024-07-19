@@ -31,7 +31,7 @@ export interface YowzaServerHandlerGeneric {
     locals?: Record<string, any>;
     params?: Readonly<Params>
 }
-interface Params{
+interface Params {
     [key: string]: string
 }
 
@@ -44,6 +44,7 @@ export interface YowzaServerTextResponseOption {
 export interface YowzaServerBufferResponseOption {
     type: 'buffer';
     content: Buffer;
+    mime?: string;
 }
 export interface YowzaServerFileResponseOption {
     type: 'file';
@@ -57,11 +58,11 @@ export interface YowzaServerMediaResponseOption {
 type Path = string;
 
 //response cookie
-export interface YowzaServerResponseCookieData{
+export interface YowzaServerResponseCookieData {
     value: string;
     option: YowzaServerResponseCookieOption;
 }
-export interface YowzaServerResponseCookieOption{
+export interface YowzaServerResponseCookieOption {
     path: string;
     domain?: string;
     expires?: number | Date;
@@ -73,7 +74,7 @@ export interface YowzaServerResponseCookieOption{
 }
 
 //form file data
-export interface FormFile{
+export interface FormFile {
     filename?: string;
     mime?: string;
     encoding?: string;

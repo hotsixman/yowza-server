@@ -22,7 +22,7 @@ export class YowzaServerEventRequest {
     readonly url: Readonly<URL>;
     readonly protocol: 'http' | 'https';
     readonly method: string;
-    readonly cookie: Map<string, string>;
+    readonly cookie: ReadonlyMap<string, string>;
     private bodyPromise: Promise<Buffer>;
 
     constructor(req: Http2ServerRequest, option: { protocol: 'http' | 'https' }) {
@@ -42,13 +42,14 @@ export class YowzaServerEventRequest {
         this.header = header;
 
         //cookie
-        this.cookie = new Map();
+        let cookie = new Map();
         if (req.headers['cookie']) {
             req.headers['cookie'].split(';').forEach((cookieString) => {
                 const splited = cookieString.split('=');
-                this.cookie.set(decodeURIComponent(splited[0]), decodeURIComponent(splited[1]));
+                cookie.set(decodeURIComponent(splited[0]), decodeURIComponent(splited[1]));
             })
         }
+        this.cookie = cookie;
 
         //url
         const reqSymbol = Object.getOwnPropertySymbols(req).find(symbol => symbol.description === "req");

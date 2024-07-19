@@ -21,8 +21,8 @@ export class YowzaServerRouter {
     }
 
     route: string;
-    ALL: YowzaServerHandler<any>[] = [];
-    methodHandlers: Map<string, YowzaServerHandler<any>[]> = new Map();
+    private ALL: YowzaServerHandler<any>[] = [];
+    private methodHandlers: Map<string, YowzaServerHandler<any>[]> = new Map();
 
     constructor(route: string) {
         this.route = route;
