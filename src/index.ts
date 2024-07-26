@@ -1,13 +1,12 @@
-import { pathToRegexp, parse, compile, match } from "path-to-regexp";
+import { pathToRegexp, parse, match } from "path-to-regexp";
 import { YowzaServerCreateListenOption, YowzaServerHandler, YowzaServerHandlerGeneric, YowzaServerListenOption } from "./types";
 import { createServer as createHttpServer } from "http";
 import { createServer as createHttp2Server, Http2ServerRequest, Http2ServerResponse } from "http2";
 import { createServer as createHttpsServer } from "https";
-import { YowzaServerEvent } from "./module/event";
-import { YowzaServerRouter } from "./module/router";
-import { YowzaServerError } from "./module/error";
-import { YowzaServerResponse } from "./module/response";
-import streamToPromise from "stream-to-promise";
+import { YowzaServerEvent } from "./module/event.js";
+import { YowzaServerRouter } from "./module/router.js";
+import { YowzaServerError } from "./module/error.js";
+import { YowzaServerResponse } from "./module/response.js";
 
 export default class YowzaServer {
     private routers: Map<string, YowzaServerRouter> = new Map();
