@@ -1,8 +1,8 @@
 import { YowzaServerHandler, YowzaServerHandlerGeneric, YowzaServerListenOption } from "./types";
-import { YowzaServerEvent } from "./module/event";
-import { YowzaServerRouter } from "./module/router";
-import { YowzaServerError } from "./module/error";
-import { YowzaServerResponse } from "./module/response";
+import { YowzaServerEvent } from "./module/event.js";
+import { YowzaServerRouter } from "./module/router.js";
+import { YowzaServerError } from "./module/error.js";
+import { YowzaServerResponse } from "./module/response.js";
 export default class YowzaServer {
     private routers;
     private middlewares;

@@ -1,5 +1,5 @@
-import { YowzaServerError } from "./error";
-import { YowzaServerEvent } from "./event";
+import { YowzaServerError } from "./error.js";
+import { YowzaServerEvent } from "./event.js";
 export class YowzaServerRouter {
     static sequence(...handlers) {
         return async (event) => {

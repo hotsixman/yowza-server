@@ -2,10 +2,10 @@ import { pathToRegexp, parse, match } from "path-to-regexp";
 import { createServer as createHttpServer } from "http";
 import { createServer as createHttp2Server } from "http2";
 import { createServer as createHttpsServer } from "https";
-import { YowzaServerEvent } from "./module/event";
-import { YowzaServerRouter } from "./module/router";
-import { YowzaServerError } from "./module/error";
-import { YowzaServerResponse } from "./module/response";
+import { YowzaServerEvent } from "./module/event.js";
+import { YowzaServerRouter } from "./module/router.js";
+import { YowzaServerError } from "./module/error.js";
+import { YowzaServerResponse } from "./module/response.js";
 export default class YowzaServer {
     routers = new Map();
     middlewares = [];

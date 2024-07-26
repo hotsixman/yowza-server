@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.YowzaServerRouter = void 0;
-const error_1 = require("./error");
-const event_1 = require("./event");
+const error_js_1 = require("./error.js");
+const event_js_1 = require("./event.js");
 class YowzaServerRouter {
     static sequence(...handlers) {
         return async (event) => {
             for (const handler of handlers) {
                 const handled = await handler(event);
-                if (handled instanceof event_1.YowzaServerEvent) {
+                if (handled instanceof event_js_1.YowzaServerEvent) {
                     continue;
                 }
                 else {
@@ -41,7 +41,7 @@ class YowzaServerRouter {
     handle = async (event) => {
         const allHandlerSequence = YowzaServerRouter.sequence(...this.ALL);
         const result = await allHandlerSequence(event);
-        if (!(result instanceof event_1.YowzaServerEvent)) {
+        if (!(result instanceof event_js_1.YowzaServerEvent)) {
             return result;
         }
         for (const method of this.methodHandlers.keys()) {
@@ -54,7 +54,7 @@ class YowzaServerRouter {
                 return await handlerSequence(event);
             }
         }
-        return new error_1.YowzaServerError(405);
+        return new error_js_1.YowzaServerError(405);
     };
 }
 exports.YowzaServerRouter = YowzaServerRouter;

@@ -1,4 +1,4 @@
-import { YowzaServerResponse } from "./response";
+import { YowzaServerResponse } from "./response.js";
 export class YowzaServerError extends YowzaServerResponse {
     statusCode;
     defaultErrorBody = new Map([

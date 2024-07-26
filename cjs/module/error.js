@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.YowzaServerError = void 0;
-const response_1 = require("./response");
-class YowzaServerError extends response_1.YowzaServerResponse {
+const response_js_1 = require("./response.js");
+class YowzaServerError extends response_js_1.YowzaServerResponse {
     statusCode;
     defaultErrorBody = new Map([
         [400, '<h1>400 Bad Request</h1>'],

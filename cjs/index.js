@@ -5,14 +5,14 @@ const path_to_regexp_1 = require("path-to-regexp");
 const http_1 = require("http");
 const http2_1 = require("http2");
 const https_1 = require("https");
-const event_1 = require("./module/event");
-Object.defineProperty(exports, "YowzaServerEvent", { enumerable: true, get: function () { return event_1.YowzaServerEvent; } });
-const router_1 = require("./module/router");
-Object.defineProperty(exports, "YowzaServerRouter", { enumerable: true, get: function () { return router_1.YowzaServerRouter; } });
-const error_1 = require("./module/error");
-Object.defineProperty(exports, "YowzaServerError", { enumerable: true, get: function () { return error_1.YowzaServerError; } });
-const response_1 = require("./module/response");
-Object.defineProperty(exports, "YowzaServerResponse", { enumerable: true, get: function () { return response_1.YowzaServerResponse; } });
+const event_js_1 = require("./module/event.js");
+Object.defineProperty(exports, "YowzaServerEvent", { enumerable: true, get: function () { return event_js_1.YowzaServerEvent; } });
+const router_js_1 = require("./module/router.js");
+Object.defineProperty(exports, "YowzaServerRouter", { enumerable: true, get: function () { return router_js_1.YowzaServerRouter; } });
+const error_js_1 = require("./module/error.js");
+Object.defineProperty(exports, "YowzaServerError", { enumerable: true, get: function () { return error_js_1.YowzaServerError; } });
+const response_js_1 = require("./module/response.js");
+Object.defineProperty(exports, "YowzaServerResponse", { enumerable: true, get: function () { return response_js_1.YowzaServerResponse; } });
 class YowzaServer {
     routers = new Map();
     middlewares = [];
@@ -37,9 +37,9 @@ class YowzaServer {
             }
         });
         return async (req, res) => {
-            const event = new event_1.YowzaServerEvent(req, option);
-            const middlewareHandled = (router_1.YowzaServerRouter.sequence(...this.middlewares))(event);
-            if (middlewareHandled instanceof response_1.YowzaServerResponse) {
+            const event = new event_js_1.YowzaServerEvent(req, option);
+            const middlewareHandled = (router_js_1.YowzaServerRouter.sequence(...this.middlewares))(event);
+            if (middlewareHandled instanceof response_js_1.YowzaServerResponse) {
                 return await middlewareHandled.send(res, event);
             }
             for (const route of routesStringSet) {
@@ -52,8 +52,8 @@ class YowzaServer {
                 }
                 try {
                     const handled = await router.handle(event);
-                    if (handled instanceof event_1.YowzaServerEvent) {
-                        return await new error_1.YowzaServerError(500).send(res, event);
+                    if (handled instanceof event_js_1.YowzaServerEvent) {
+                        return await new error_js_1.YowzaServerError(500).send(res, event);
                     }
                     else {
                         return await handled.send(res, event);
@@ -62,7 +62,7 @@ class YowzaServer {
                 catch (err) {
                     console.warn(`Error occured at ${route}`);
                     console.warn(err);
-                    return await new error_1.YowzaServerError(500).send(res, event);
+                    return await new error_js_1.YowzaServerError(500).send(res, event);
                 }
             }
             for (const [route, routeRegExp] of routesRegExpMap) {
@@ -76,8 +76,8 @@ class YowzaServer {
                 }
                 try {
                     const handled = await router.handle(event);
-                    if (handled instanceof event_1.YowzaServerEvent) {
-                        return await new error_1.YowzaServerError(500).send(res, event);
+                    if (handled instanceof event_js_1.YowzaServerEvent) {
+                        return await new error_js_1.YowzaServerError(500).send(res, event);
                     }
                     else {
                         return await handled.send(res, event);
@@ -86,10 +86,10 @@ class YowzaServer {
                 catch (err) {
                     console.warn(`Error occured at ${route}`);
                     console.warn(err);
-                    return await new error_1.YowzaServerError(500).send(res, event);
+                    return await new error_js_1.YowzaServerError(500).send(res, event);
                 }
             }
-            return await new error_1.YowzaServerError(404).send(res, event);
+            return await new error_js_1.YowzaServerError(404).send(res, event);
         };
     }
     listen(option, listenCallback) {

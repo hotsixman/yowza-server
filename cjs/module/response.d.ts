@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { Http2ServerResponse } from "http2";
 import { YowzaServerResponseOption } from "../types";
-import { YowzaServerEvent } from "./event";
+import { YowzaServerEvent } from "./event.js";
 export declare class YowzaServerResponse {
     private static fileTypeMime;
     static getFileTypeMime(): Promise<typeof import("file-type-mime", { with: { "resolution-mode": "import" } })>;
