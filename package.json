@@ -1,6 +1,6 @@
 {
   "name": "@yowza/server",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "description": "A simple web server for nodejs",
   "main": "./cjs/index.js",
   "module": "./esm/index.js",
