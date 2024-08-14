@@ -40,7 +40,7 @@ class YowzaServerEventRequest {
         if (req.headers['cookie']) {
             req.headers['cookie'].split(';').forEach((cookieString) => {
                 const splited = cookieString.split('=');
-                cookie.set(decodeURIComponent(splited[0]), decodeURIComponent(splited[1]));
+                cookie.set(decodeURIComponent(splited[0]).trim(), decodeURIComponent(splited[1]));
             });
         }
         this.cookie = cookie;

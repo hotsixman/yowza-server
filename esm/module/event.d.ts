@@ -1,5 +1,3 @@
-/// <reference types="node" />
-/// <reference types="node" />
 import { Http2ServerRequest } from "http2";
 import { FormFile, YowzaServerResponseCookieData, YowzaServerResponseCookieOption } from "../types";
 export declare class YowzaServerEvent {

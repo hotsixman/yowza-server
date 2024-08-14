@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { Http2ServerResponse } from "http2";
 import { YowzaServerResponseOption } from "../types";
 import { YowzaServerEvent } from "./event.js";

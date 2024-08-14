@@ -1,8 +1,3 @@
-/// <reference types="node" />
-/// <reference types="node" />
-/// <reference types="node" />
-/// <reference types="node" />
-/// <reference types="node" />
 import { ServerOptions as HttpsServerOptions } from "https";
 import { ServerOptions as Http2ServerOptions } from "http2";
 import { ServerOptions as HttpServerOptions } from "http";
