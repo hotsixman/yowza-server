@@ -33,7 +33,7 @@ class YowzaServer {
                 routesStringSet.add(route);
             }
             else {
-                routesRegExpMap.set(route, (0, path_to_regexp_1.pathToRegexp)(route));
+                routesRegExpMap.set(route, (0, path_to_regexp_1.pathToRegexp)(route).regexp);
             }
         });
         return async (req, res) => {

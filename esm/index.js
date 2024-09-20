@@ -26,7 +26,7 @@ export default class YowzaServer {
                 routesStringSet.add(route);
             }
             else {
-                routesRegExpMap.set(route, pathToRegexp(route));
+                routesRegExpMap.set(route, pathToRegexp(route).regexp);
             }
         });
         return async (req, res) => {
