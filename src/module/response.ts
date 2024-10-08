@@ -135,7 +135,7 @@ export class YowzaServerResponse {
                     }
                     res.setHeader('Content-Length', this.option.content.byteLength);
 
-                    res.end(this.option.content);
+                    res.end(Uint8Array.from(this.option.content));
                 }
                 else { //path
                     const filePath = this.option.content as string;
@@ -169,7 +169,7 @@ export class YowzaServerResponse {
                         res.setHeader('Content-Type', result.mime + '; charset=utf8');
                     }
 
-                    res.end(this.option.content);
+                    res.end(Uint8Array.from(this.option.content));
                 }
                 else {
                     const filePath = this.option.content as string;
@@ -208,7 +208,7 @@ export class YowzaServerResponse {
                     res.setHeader('Content-Type', result.mime + '; charset=utf8');
                 }
 
-                res.end(this.option.content);
+                res.end(Uint8Array.from(this.option.content));
             }
         }
     }
