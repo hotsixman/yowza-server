@@ -1,9 +1,9 @@
 import { ServerOptions as HttpsServerOptions } from "https";
 import { ServerOptions as Http2ServerOptions } from "http2";
 import { ServerOptions as HttpServerOptions } from "http";
-import { YowzaServerEvent } from "./module/event";
-import { YowzaServerResponse } from "./module/response";
-import { YowzaServerError } from "./module/error";
+import { YowzaServerEvent } from "./module/event.js";
+import { YowzaServerResponse } from "./module/response.js";
+import { YowzaServerError } from "./module/error.js";
 import { ReadStream } from "fs";
 
 //listen option
