@@ -1,5 +1,5 @@
 import { pathToRegexp, parse, match } from "path-to-regexp";
-import { YowzaServerCreateListenOption, YowzaServerHandler, YowzaServerHandlerGeneric, YowzaServerListenOption } from "./types";
+import { YowzaServerCreateListenOption, YowzaServerHandler, YowzaServerHandlerGeneric, YowzaServerListenOption } from "./types.js";
 import { createServer as createHttpServer } from "http";
 import { createServer as createHttp2Server, Http2ServerRequest, Http2ServerResponse } from "http2";
 import { createServer as createHttpsServer } from "https";

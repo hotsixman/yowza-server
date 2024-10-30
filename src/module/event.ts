@@ -1,7 +1,7 @@
 import { Http2ServerRequest } from "http2";
 import streamToPromise from "stream-to-promise";
 import { formParser } from '@mntm/multipart';
-import { FormFile, YowzaServerResponseCookieData, YowzaServerResponseCookieOption } from "../types";
+import { FormFile, YowzaServerResponseCookieData, YowzaServerResponseCookieOption } from "../types.js";
 
 export class YowzaServerEvent {
     request: YowzaServerEventRequest;

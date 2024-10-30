@@ -1,5 +1,5 @@
 import { Http2ServerResponse } from "http2";
-import { YowzaServerResponseOption } from "../types";
+import { YowzaServerResponseOption } from "../types.js";
 import { YowzaServerEvent } from "./event.js";
 import { YowzaServerResponse } from "./response.js";
 

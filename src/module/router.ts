@@ -1,4 +1,4 @@
-import { YowzaServerHandler, YowzaServerHandlerGeneric } from "../types";
+import { YowzaServerHandler, YowzaServerHandlerGeneric } from "../types.js";
 import { YowzaServerError } from "./error.js";
 import { YowzaServerEvent } from "./event.js";
 
