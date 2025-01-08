@@ -2,6 +2,8 @@ node_modules
 tests
 .env
 
+cjs/
+esm/
 *.js
 *.map
 *.d.ts

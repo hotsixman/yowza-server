@@ -39,7 +39,7 @@ export default class YowzaServer {
         return async (req, res) => {
             const event = new YowzaServerEvent(req, option);
 
-            const middlewareHandled = (YowzaServerRouter.sequence(...this.middlewares))(event);
+            const middlewareHandled = await (YowzaServerRouter.sequence(...this.middlewares))(event);
             if (middlewareHandled instanceof YowzaServerResponse) {
                 return await middlewareHandled.send(res, event);
             }
