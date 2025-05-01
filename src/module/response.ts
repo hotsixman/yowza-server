@@ -128,7 +128,7 @@ export class YowzaServerResponse {
                     res.setHeader('Accept-Ranges', 'bytes');
 
                     const fileTypeMime = await YowzaServerResponse.getFileTypeMime();
-                    const result = fileTypeMime.parse(this.option.content);
+                    const result = fileTypeMime.parse(Uint8Array.from(this.option.content).buffer);
 
                     if (result) {
                         res.setHeader('Content-Type', result.mime + '; charset=utf8');
@@ -160,7 +160,7 @@ export class YowzaServerResponse {
                     res.setHeader('Content-Length', this.option.content.byteLength);
 
                     const fileTypeMime = await YowzaServerResponse.getFileTypeMime();
-                    const result = fileTypeMime.parse(this.option.content);
+                    const result = fileTypeMime.parse(Uint8Array.from(this.option.content).buffer);
 
                     if (this.option.mime) {
                         res.setHeader('Content-Type', this.option.mime + '; charset=utf8');
@@ -199,7 +199,7 @@ export class YowzaServerResponse {
                 res.setHeader('Content-Length', this.option.content.byteLength);
 
                 const fileTypeMime = await YowzaServerResponse.getFileTypeMime();
-                const result = fileTypeMime.parse(this.option.content);
+                const result = fileTypeMime.parse(Uint8Array.from(this.option.content).buffer);
 
                 if (this.option.mime) {
                     res.setHeader('Content-Type', this.option.mime + '; charset=utf8');
